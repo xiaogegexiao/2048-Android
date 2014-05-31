@@ -8,7 +8,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.xiao2048.app.R;
 import com.xiao2048.app.listeners.On2048GestureListener;
@@ -201,7 +200,6 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
     public void onRightStroke() {
         hasChanged2048 = false;
         moveRight();
-        Toast.makeText(mContext, "changed ============= " + hasChanged2048, Toast.LENGTH_SHORT).show();
         if (hasChanged2048)
             generateExtra();
     }
@@ -210,7 +208,6 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
     public void onDownStroke() {
         hasChanged2048 = false;
         moveDown();
-        Toast.makeText(mContext, "changed ============= " + hasChanged2048, Toast.LENGTH_SHORT).show();
         if (hasChanged2048)
             generateExtra();
     }
@@ -219,7 +216,6 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
     public void onLeftStroke() {
         hasChanged2048 = false;
         moveLeft();
-        Toast.makeText(mContext, "changed ============= " + hasChanged2048, Toast.LENGTH_SHORT).show();
         if (hasChanged2048)
             generateExtra();
     }
@@ -228,7 +224,6 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
     public void onUpStroke() {
         hasChanged2048 = false;
         moveUp();
-        Toast.makeText(mContext, "changed ============= " + hasChanged2048, Toast.LENGTH_SHORT).show();
         if (hasChanged2048)
             generateExtra();
     }
