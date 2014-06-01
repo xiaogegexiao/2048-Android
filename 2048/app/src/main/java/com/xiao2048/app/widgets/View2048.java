@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * TODO: document your custom view class.
@@ -27,11 +29,21 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
     public static final int ROW_COUNT = 4;
     public static final int COLUMN_COUNT = 4;
 
+    @InjectView(R.id.blocks_layout)
+    FrameLayout mBlocksLayout;
+
+    @InjectView(R.id.score_text)
+    TextView mScoreText;
+
+    @InjectView(R.id.high_score_text)
+    TextView mHighScoreText;
+
     private Context mContext;
     private On2048GestureListener mGestureListener;
     private float mOldX, mOldY;
     private ViewData[][] arrays2048 = new ViewData[ROW_COUNT][COLUMN_COUNT];
     private boolean hasChanged2048 = false;
+    private long mScore = 0;
 
     public View2048(Context context) {
         super(context);
@@ -60,15 +72,19 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
         super.onLayout(changed, l, t, r, b);
         int width = r - l;
         int height = b - t;
+        int width2048 = Math.min(width, height);
 
-        int sidesize = Math.min(width, height) / 4;
+        LayoutParams params = (LayoutParams) mBlocksLayout.getLayoutParams();
+        params.height = params.width = Math.min(width2048, width2048);
+
+        int sidesize = width2048 / 4;
         int index = 0;
         for (int i = 0; i < COLUMN_COUNT; i++) {
             for (int j =0; j< ROW_COUNT;j++) {
                 ViewData vd = arrays2048[j][i];
                 if (vd == null) continue;
                 vd.view.setGravity(Gravity.CENTER);
-                LayoutParams params = (LayoutParams)vd.view.getLayoutParams();
+                params = (LayoutParams)vd.view.getLayoutParams();
                 params.width = params.height = sidesize;
                 vd.view.layout(i * sidesize, j * sidesize, (i + 1) * sidesize, (j + 1) * sidesize);
                 if (index % 2 == 0) {
@@ -79,6 +95,17 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                 index ++;
             }
         }
+
+        int leftSpace = height - width2048;
+        int topScore = width2048 + (leftSpace - sidesize) / 2;
+        int leftScore = 50;
+
+        int leftHighScore = width2048 / 2 + 50;
+
+        mScoreText.layout(leftScore, topScore, leftScore + sidesize, topScore + sidesize);
+        mScoreText.setGravity(Gravity.CENTER);
+        mHighScoreText.layout(leftHighScore, topScore, leftHighScore + sidesize, topScore + sidesize);
+        mHighScoreText.setGravity(Gravity.CENTER);
     }
 
     private void init(AttributeSet attrs, int defStyle) {
@@ -86,18 +113,18 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.View2048, defStyle, 0);
 
-//        LayoutInflater.from(getContext()).inflate(R.layout.view2048, this, true);
-        initViewData();
+        LayoutInflater.from(getContext()).inflate(R.layout.view2048, this, true);
         ButterKnife.inject(this, this);
+        initViewData();
         setmGestureListener(this);
     }
 
     private void initViewData() {
-        removeAllViews();
+        mBlocksLayout.removeAllViews();
         for (int j = 0; j < ROW_COUNT; j++) {
             for (int i = 0; i < COLUMN_COUNT; i++) {
                 TextView tv = new TextView(mContext);
-                this.addView(tv);
+                mBlocksLayout.addView(tv);
                 arrays2048[j][i] = new ViewData(tv, 0);
             }
         }
@@ -255,6 +282,7 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                     } else {
                         if (row[i].num == former) {
                             list.add(former * 2);
+                            addmScore(former * 2);
                             former = 0;
                         } else {
                             list.add(former);
@@ -289,6 +317,7 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                     } else {
                         if (row[i].num == former) {
                             list.add(former * 2);
+                            addmScore(former * 2);
                             former = 0;
                         } else {
                             list.add(former);
@@ -323,6 +352,7 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                     } else {
                         if (arrays2048[j][i].num == former) {
                             list.add(former * 2);
+                            addmScore(former * 2);
                             former = 0;
                         } else {
                             list.add(former);
@@ -357,6 +387,7 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                     } else {
                         if (arrays2048[j][i].num == former) {
                             list.add(former * 2);
+                            addmScore(former * 2);
                             former = 0;
                         } else {
                             list.add(former);
@@ -376,6 +407,20 @@ public class View2048 extends FrameLayout implements On2048GestureListener {
                 }
             }
         }
+    }
+
+    public long getmScore() {
+        return mScore;
+    }
+
+    public void setmScore(long mScore) {
+        this.mScore = mScore;
+        mScoreText.setText("Score\r\n" + mScore);
+    }
+
+    public void addmScore(long score) {
+        this.mScore += score;
+        mScoreText.setText("Score\r\n" + mScore);
     }
 
     public class ViewData {
